@@ -4,12 +4,12 @@
         height: 100%;
       }
 
-      #RoadTypeButton {
+      #download {
         border: 2px solid white;
         position:absolute;
         color: black;
         top:10%;
-        left:10%;
+        right:10%;
     }
     .tara{
       background-color: red;

@@ -4,7 +4,7 @@ var GMap;
 var positions = [{}];
 var i = 0;
 
-var buttonInd = 10;
+var buttonInd = 9;
 
 var activeOption;
 
@@ -44,10 +44,10 @@ function initButtons() {
     var btn = document.createElement("BUTTON");
     btn.innerHTML = option.type;
 
-    //btn.style.position = "absolute";
-    //btn.style.top = buttonInd + "%";
-    //buttonInd += 3;
-    //btn.style.left = "10%";
+    btn.style.position = "absolute";
+    btn.style.top = buttonInd + "%";
+    buttonInd += 2;
+    btn.style.left = "2%";
     btn.style.backgroundColor = option.color;
     btn.style.border = "0px";
 
