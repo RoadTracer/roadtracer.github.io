@@ -1,0 +1,23 @@
+/* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+       #map {
+        height: 100%;
+      }
+
+      #RoadTypeButton {
+        border: 2px solid white;
+        position:absolute;
+        color: black;
+        top:10%;
+        left:10%;
+    }
+    .tara{
+      background-color: red;
+    }
+      /* Optional: Makes the sample page fill the window. */
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
