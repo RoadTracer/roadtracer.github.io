@@ -70,7 +70,7 @@ function getLocation(firstTime) {
 
 function setup() {
   getLocation(true);
-  //frameRate(1);
+  frameRate(1);
 }
 
 
@@ -79,8 +79,8 @@ function draw() {
   getLocation(false);
 
   if (pos != undefined && lastPos != undefined)
-    if (lastPos.lat != pos.lat) {
-      lastPos = pos;
+    //if (lastPos.lat != pos.lat) {
+      //lastPos = pos;
 
       if (pos != undefined)
         myPosMarker.setPosition(pos);
@@ -95,8 +95,6 @@ function draw() {
           }
         }
       }
-    }
-
 }
 
 function createPolylines() {
