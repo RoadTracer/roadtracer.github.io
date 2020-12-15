@@ -7,16 +7,22 @@ const icons = {
     name: "TTip1",
     icon: iconBase + "parking_lot_maps.png",
     color: "#FF0000",
+    path: [{ lat: 0, lng: 0 }],
+    polyline: "",
   },
   Tip2: {
     name: "TTip2",
     icon: iconBase + "library_maps.png",
     color: "#FF00FF",
+    path: [{ lat: 0, lng: 0 }],
+    polyline: "",
   },
   Tip3: {
     name: "TTip3",
     icon: iconBase + "info-i_maps.png",
     color: "#00FF00",
+    path: [{ lat: 0, lng: 0 }],
+    polyline: "",
   },
 };
 
@@ -28,12 +34,14 @@ let pos;
 
 let myPosMarker;
 
-var activeRoadType;
+let activeRoadType;
+
+var lastPos;
 
 function initMap(pos) {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: pos.lat, lng: pos.lng },
-    zoom: 15,
+    zoom: 16,
   });
   createPanToLocationButton();
   createPositionMarker();
@@ -67,42 +75,44 @@ function setup() {
 
 
 function draw() {
-  getLocation(false);
-  //TODO: optimeze, change pos only when necessary
-  myPosMarker.setPosition(pos);
 
-  for (const ind in polylines) {
-    //print(polylines[ind].name);
-    poly = polylines[ind];
-    if (activeRoadType != undefined)
-      if (poly.name == activeRoadType.name) {
-        const path = poly.getPath();
-        path.push(pos);
-        print(polylines);
-        break;
+  getLocation(false);
+
+  if (pos != undefined && lastPos != undefined)
+    if (lastPos.lat != pos.lat) {
+      lastPos = pos;
+
+      if (pos != undefined)
+        myPosMarker.setPosition(pos);
+      if (activeRoadType) {
+        for (const key in icons) {
+          const type = icons[key];
+          if (type == activeRoadType) {
+            //print(type.polyline.getPath());
+            var myLatlng = new google.maps.LatLng(pos.lat, pos.lng);
+            type.polyline.getPath().push(myLatlng);
+            print(type.polyline.getPath());
+          }
+        }
       }
-  }
+    }
+
 }
 
-
-let polylines = [];
-
 function createPolylines() {
-
   for (const key in icons) {
     const type = icons[key];
-
-    var poly = new google.maps.Polyline({
-      name: type.name,
-      icon: type.icon,
-      strokeColor: color,
-      strokeOpacity: 1.0,
-      strokeWeight: 3,
+    //print(type);
+    type.polyline = new google.maps.Polyline({
+      //path: type.path,
+      strokeColor: type.color,
+      strokeOpacity: 0.5,
+      strokeWeight: 10,
+      editable: true,
     });
-    poly.setMap(map);
-    polylines.push(poly);
+    type.polyline.setMap(map);
+    type.path.pop();
   }
-  print(polylines);
 }
 
 
@@ -151,7 +161,6 @@ function onTypeButtonPressed(type) {
   } else {
     print("not the same");
     activeRoadType = type;
-    //print(activeRoadType);
   }
 }
 
