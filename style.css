@@ -3,17 +3,7 @@
        #map {
         height: 100%;
       }
-
-      #download {
-        border: 2px solid white;
-        position:absolute;
-        color: black;
-        top:10%;
-        right:10%;
-    }
-    .tara{
-      background-color: red;
-    }
+      
       /* Optional: Makes the sample page fill the window. */
       html,
       body {
@@ -21,3 +11,39 @@
         margin: 0;
         padding: 0;
       }
+      
+      .custom-map-control-button {
+        appearance: button;
+        background-color: #fff;
+        border: 0;
+        border-radius: 2px;
+        box-shadow: 0 1px 4px -1px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        margin: 10px;
+        padding: 0 0.5em;
+        height: 40px;
+        font: 400 18px Roboto, Arial, sans-serif;
+        overflow: hidden;
+      }
+      .custom-map-control-button:hover {
+        background: #ebebeb;
+      }
+
+      
+
+      #legend {
+        font-family: Arial, sans-serif;
+        background: #fff;
+        padding: 10px;
+        margin: 10px;
+        border: 3px solid #000;
+      }
+      
+      #legend h3 {
+        margin-top: 0;
+      }
+      
+      #legend img {
+        vertical-align: middle;
+      }
+      
