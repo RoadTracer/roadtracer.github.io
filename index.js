@@ -1,45 +1,51 @@
+/*
+drum cu pamant - verde
+drum pietruit - rosu
+asflat - gri
+drumuri din placi, umpluturi, etc - galben
+
+puncte: 
+*/
 
 
+//window.onbeforeunload = function () {return "You will lose all your progress!";}
 
 const iconBase = "https://maps.google.com/mapfiles/kml/shapes/";
 const icons = {
   roadType1: {
-    name: "Tip_Drum 1",
+    name: "Drum de pamant",
     icon: iconBase + "parking_lot_maps.png",
-    color: "#FF0000",
-    path: [{ lat: 0, lng: 0 }],
-    polyline: "",
-  },
-  roadType2: {
-    name: "Tip_Drum 2",
-    icon: iconBase + "library_maps.png",
-    color: "#FF00FF",
-    path: [{ lat: 0, lng: 0 }],
-    polyline: "",
-  },
-  roadType3: {
-    name: "Tip_Drum 3",
-    icon: iconBase + "info-i_maps.png",
     color: "#00FF00",
     path: [{ lat: 0, lng: 0 }],
     polyline: "",
   },
+  roadType2: {
+    name: "Drum pietruit",
+    icon: iconBase + "library_maps.png",
+    color: "#FF0000",
+    path: [{ lat: 0, lng: 0 }],
+    polyline: "",
+  },
+  roadType3: {
+    name: "Drum cu asfalt",
+    icon: iconBase + "info-i_maps.png",
+    color: "#696969",
+    path: [{ lat: 0, lng: 0 }],
+    polyline: "",
+  },
+  roadType4: {
+    name: "Drum din placi, umpluturi etc",
+    icon: iconBase + "info-i_maps.png",
+    color: "#FFFF00",
+    path: [{ lat: 0, lng: 0 }],
+    polyline: "",
+  },
 
-  roadPoint1: {
-    name: "Tip_Punct 1",
+
+  roadPoint_F: {
+    name: "Punct foraj",
     icon: iconBase + "info-i_maps.png",
     color: "#00FFFF",
-  },
-
-  roadPoint2: {
-    name: "Tip_Punct 2",
-    icon: iconBase + "library_maps.png",
-    color: "#FFFF00",
-  },
-  roadPoint3: {
-    name: "Tip_Punct 3",
-    icon: iconBase + "parking_lot_maps.png",
-    color: "#FFFF00",
   },
 
   Route_show: {
@@ -90,12 +96,10 @@ function getLocation(firstTime) {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-        if (firstTime == true){
+        if (firstTime == true) {
           initMap(pos);
           lastPos = pos;
         }
-        else
-          myPosMarker.setPosition(pos);
       }
     )
   }
@@ -103,6 +107,7 @@ function getLocation(firstTime) {
 
 function setup() {
   getLocation(true);
+  frameRate(1);
 }
 
 
@@ -110,16 +115,58 @@ function draw() {
 
   getLocation(false);
 
+  snapLocationToRoad();
+  myPosMarker.setPosition(pos);
+
   updateRouteVisibility();
   updatePoints();
 
   if (pos != undefined)
-    if ( lastPos.lat != pos.lat || lastPos.lng != pos.lng) {
-      if (activeRoadType)
-        if (activeRoadType != icons.Route_init && activeRoadType != icons.Route_clear)
-          updatePolylines();
-      lastPos = pos;
-    }
+  if ( mapUpdateNeeded() )
+  {
+    if (activeRoadType)
+      if (activeRoadType != icons.Route_init && activeRoadType != icons.Route_clear)
+        updatePolylines();
+    lastPos = pos;
+  }
+}
+
+function snapLocationToRoad(){
+
+  if(pos == undefined)
+    return null;
+
+    $.get('https://roads.googleapis.com/v1/snapToRoads', {
+      interpolate: true,
+      key: "AIzaSyBlgYKld9QIQT9AALcT-Y2p2tOcQy-hROg",
+      path: pos.lat + ", " + pos.lng
+    }, function(data)
+    {
+      processSnapResponse(data);
+    })
+}
+
+function processSnapResponse(data){
+  snappedPosition = pos;
+
+  for (var i = 0; i < data.snappedPoints.length; i++) {
+       snappedPosition.lat = data.snappedPoints[i].location.latitude,
+       snappedPosition.lng = data.snappedPoints[i].location.longitude;
+  }
+
+  if(snappedPosition != null && snappedPosition != undefined &&
+     snappedPosition.lat != null && snappedPosition.lat != undefined && 
+     snappedPosition.lng != null && snappedPosition.lng != undefined )
+
+    pos = snappedPosition;
+}
+
+function mapUpdateNeeded()
+{
+  const minDistanceForUpdate = 0.0001;
+
+  return ( pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
+           pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
 }
 
 function updatePolylines() {
@@ -196,7 +243,7 @@ function createPolylines() {
     type.polyline = new google.maps.Polyline({
       //path: type.path,
       strokeColor: type.color,
-      strokeOpacity: 0.5,
+      strokeOpacity: 0.7,
       strokeWeight: 10,
       editable: true,
     });
@@ -248,11 +295,18 @@ function createRoadTypesButtons() {
 }
 function onTypeButtonPressed(type) {
   if (activeRoadType == type) {
-    print("the same")
+    print("Cleared activeRoadType")
     activeRoadType = null;
   } else {
-    print("not the same");
+    print("activeRoadType updated");
     activeRoadType = type;
+    type.polyline = new google.maps.Polyline({
+      strokeColor: type.color,
+      strokeOpacity: 0.7,
+      strokeWeight: 10,
+      editable: true,
+    });
+    type.polyline.setMap(map);
   }
 }
 
@@ -269,4 +323,3 @@ function PanToLocation() {
   map.setCenter(pos);
 }
 
-window.onbeforeunload = function () {return "You will lose all your progress!";}
