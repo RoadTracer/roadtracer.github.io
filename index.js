@@ -268,3 +268,5 @@ function PanToLocation() {
   getLocation();
   map.setCenter(pos);
 }
+
+window.onbeforeunload = function () {return "You will lose all your progress!";}
