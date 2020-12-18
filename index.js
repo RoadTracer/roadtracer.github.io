@@ -100,6 +100,10 @@ function getLocation(firstTime) {
           initMap(pos);
           lastPos = pos;
         }
+         else
+         {
+          myPosMarker.setPosition(pos);
+        }
       }
     )
   }
@@ -116,7 +120,6 @@ function draw() {
   getLocation(false);
 
   snapLocationToRoad();
-  myPosMarker.setPosition(pos);
 
   updateRouteVisibility();
   updatePoints();
