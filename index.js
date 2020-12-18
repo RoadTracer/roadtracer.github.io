@@ -166,7 +166,7 @@ function processSnapResponse(data){
 
 function mapUpdateNeeded()
 {
-  const minDistanceForUpdate = 0.0001;
+  const minDistanceForUpdate = 0.00001;
 
   return ( pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
            pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
