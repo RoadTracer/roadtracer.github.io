@@ -77,8 +77,8 @@ function initMap(pos) {
     zoom: 16,
     gestureHandling: "greedy",
   });
-  createPanToLocationButton();
   createPositionMarker();
+  createPanToLocationButton();
 
   drawLegend();
   createRoadTypesButtons();
@@ -100,9 +100,9 @@ function getLocation(firstTime) {
           initMap(pos);
           lastPos = pos;
         }
-         else
-         {
-          myPosMarker.setPosition(pos);
+        else {
+          if (pos != undefined && myPosMarker != undefined)
+            myPosMarker.setPosition(pos);
         }
       }
     )
@@ -111,7 +111,7 @@ function getLocation(firstTime) {
 
 function setup() {
   getLocation(true);
-  frameRate(1);
+  //frameRate(1);
 }
 
 
@@ -119,57 +119,53 @@ function draw() {
 
   getLocation(false);
 
-  snapLocationToRoad();
-
   updateRouteVisibility();
   updatePoints();
 
   if (pos != undefined)
-  if ( mapUpdateNeeded() )
-  {
-    if (activeRoadType)
-      if (activeRoadType != icons.Route_init && activeRoadType != icons.Route_clear)
-        updatePolylines();
-    lastPos = pos;
-  }
+    if (mapUpdateNeeded()) {
+      if (activeRoadType)
+        if (activeRoadType != icons.Route_init && activeRoadType != icons.Route_clear&& activeRoadType != icons.Route_show)
+          updatePolylines();
+      lastPos = pos;
+    }
 }
 
-function snapLocationToRoad(){
+function snapLocationToRoad() {
 
-  if(pos == undefined)
+  if (pos == undefined)
     return null;
 
-    $.get('https://roads.googleapis.com/v1/snapToRoads', {
-      interpolate: true,
-      key: "AIzaSyBlgYKld9QIQT9AALcT-Y2p2tOcQy-hROg",
-      path: pos.lat + ", " + pos.lng
-    }, function(data)
-    {
-      processSnapResponse(data);
-    })
+  $.get('https://roads.googleapis.com/v1/snapToRoads', {
+    interpolate: true,
+    key: "AIzaSyBlgYKld9QIQT9AALcT-Y2p2tOcQy-hROg",
+    path: pos.lat + ", " + pos.lng
+  }, function (data) {
+    processSnapResponse(data);
+  })
 }
 
-function processSnapResponse(data){
+function processSnapResponse(data) {
   snappedPosition = pos;
 
   for (var i = 0; i < data.snappedPoints.length; i++) {
-       snappedPosition.lat = data.snappedPoints[i].location.latitude,
-       snappedPosition.lng = data.snappedPoints[i].location.longitude;
+    snappedPosition.lat = data.snappedPoints[i].location.latitude;
+    snappedPosition.lng = data.snappedPoints[i].location.longitude;
   }
+  print(snappedPosition);
 
-  if(snappedPosition != null && snappedPosition != undefined &&
-     snappedPosition.lat != null && snappedPosition.lat != undefined && 
-     snappedPosition.lng != null && snappedPosition.lng != undefined )
-
-    pos = snappedPosition;
+  if (snappedPosition != null && snappedPosition != undefined &&
+    snappedPosition.lat != null && snappedPosition.lat != undefined &&
+    snappedPosition.lng != null && snappedPosition.lng != undefined) {
+    myLatlng = new google.maps.LatLng(snappedPosition.lat, snappedPosition.lng);
+  }
 }
 
-function mapUpdateNeeded()
-{
-  const minDistanceForUpdate = 0.00001;
+function mapUpdateNeeded() {
+  const minDistanceForUpdate = 0.0001;
 
-  return ( pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
-           pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
+  return (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
+    pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
 }
 
 function updatePolylines() {
@@ -180,7 +176,9 @@ function updatePolylines() {
       continue;
 
     if (type == activeRoadType) {
-      myLatlng = new google.maps.LatLng(pos.lat, pos.lng);
+      if (myLatlng == undefined) {
+        myLatlng = new google.maps.LatLng(pos.lat, pos.lng);
+      }
       type.polyline.getPath().push(myLatlng);
       print(type.polyline.getPath());
     }
@@ -230,6 +228,7 @@ function initOwnPolyline() {
 }
 
 function addLatLng(event) {
+  //print(event.latLng.lat);
   if (activeRoadType == icons.Route_init) {
     const path = routePolyline.getPath();
     path.push(event.latLng);
