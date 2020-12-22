@@ -14,38 +14,31 @@ const iconBase = "https://maps.google.com/mapfiles/kml/shapes/";
 const icons = {
   roadType1: {
     name: "Drum de pamant",
-    icon: iconBase + "parking_lot_maps.png",
+    icon: "./Icons/Green.png", //iconBase + "parking_lot_maps.png",
     color: "#00FF00",
     path: [{ lat: 0, lng: 0 }],
     polyline: "",
   },
   roadType2: {
     name: "Drum pietruit",
-    icon: iconBase + "library_maps.png",
+    icon: "./Icons/Red.png", //iconBase + "library_maps.png",
     color: "#FF0000",
     path: [{ lat: 0, lng: 0 }],
     polyline: "",
   },
   roadType3: {
     name: "Drum cu asfalt",
-    icon: iconBase + "info-i_maps.png",
+    icon: "./Icons/Gray.png", //iconBase + "info-i_maps.png",
     color: "#696969",
     path: [{ lat: 0, lng: 0 }],
     polyline: "",
   },
   roadType4: {
-    name: "Drum din placi, umpluturi etc",
-    icon: iconBase + "info-i_maps.png",
+    name: "Drum din placi, umpluturi etc.",
+    icon: "./Icons/Yellow.png", //iconBase + "info-i_maps.png",
     color: "#FFFF00",
     path: [{ lat: 0, lng: 0 }],
     polyline: "",
-  },
-
-
-  roadPoint_F: {
-    name: "Punct foraj",
-    icon: iconBase + "info-i_maps.png",
-    color: "#00FFFF",
   },
 
   Route_show: {
@@ -69,13 +62,18 @@ let myLatlng;
 let myPosMarker;
 
 let activeRoadType;
+let PointsIndex = 0;
 
+let legend;
+let ActiveRoadTypeText;
 
 function initMap(pos) {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: pos.lat, lng: pos.lng },
     zoom: 16,
     gestureHandling: "greedy",
+    streetViewControl: false,
+    zoomControl: false,
   });
   createPositionMarker();
   createPanToLocationButton();
@@ -85,6 +83,96 @@ function initMap(pos) {
 
   createPolylines();
   initOwnPolyline();
+
+  initPointField();
+  initActiveRoadTypeText();
+}
+function initActiveRoadTypeText(){
+
+  ActiveRoadTypeText = document.createElement("h2");
+ map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(ActiveRoadTypeText);
+}
+
+function initPointField() {
+  const inputField = document.createElement("input");
+  inputField.placeholder = "Descriere punct foraj";
+  inputField.classList.add("custom-map-control-button");
+
+  inputField.addEventListener('change', newPointAddedEvent);
+
+  map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(inputField);
+}
+
+function newPointAddedEvent(text) {
+
+  const inText = text.target.value;
+  print(inText)
+  //Add a marker
+  new google.maps.Marker({
+    position: new google.maps.LatLng(pos.lat, pos.lng),
+    map: map,
+    label: "F" + ++PointsIndex,
+    draggable: true,
+  });
+
+  //Update Legend
+  const div = document.createElement('div');
+  const img = document.createElement('img');
+  const p = document.createElement('p');
+
+  img.src = "./Icons/Marker.png"
+  img.style.float = "left";
+  img.style.clear = "both";
+
+  const textNode = document.createTextNode("F" + PointsIndex + ": " + inText);
+  p.appendChild(textNode);
+  p.style.maxWidth = "60ch"
+  p.style.float = "left";
+
+  div.appendChild(img);
+  div.appendChild(p);
+
+  legend.appendChild(div);
+}
+
+function firstTryToUpdateLegend() {
+  const div = document.createElement("div");
+  const img = document.createElement("img");
+  const imgDiv = document.createElement("div");
+  const pText = document.createElement("p");
+  const pIndex = document.createElement("p");
+
+  //imgDiv.id = "container"
+  imgDiv.style.border = "none";
+  imgDiv.style.height = "32px";
+  imgDiv.style.width = "32px";
+  imgDiv.style.position = "relative";
+
+  img.src = "./Icons/Marker.png"
+  img.style.float = "left";
+  img.style.clear = "both";
+
+  pIndex.style.position = "absolute";
+  pIndex.style.top = "-6px" //"50%";
+  pIndex.style.left = "8px" //"50%";
+  const indexTxtNode = document.createTextNode("F" + PointsIndex);
+  pIndex.appendChild(indexTxtNode);
+
+  pText.style.maxWidth = "20ch";
+  pText.style.float = "left";
+  pText.style.position = "absolute";
+  pText.style.left = "37px"
+  const descriptionTxtNode = document.createTextNode(inText);
+  pText.appendChild(descriptionTxtNode);
+
+  imgDiv.appendChild(img);
+  imgDiv.appendChild(pIndex);
+  imgDiv.appendChild(pText);
+
+  div.appendChild(imgDiv);
+  //div.appendChild(pText);
+
+  legend.appendChild(imgDiv);
 }
 
 function getLocation(firstTime) {
@@ -125,8 +213,10 @@ function draw() {
   if (pos != undefined)
     if (mapUpdateNeeded()) {
       if (activeRoadType)
-        if (activeRoadType != icons.Route_init && activeRoadType != icons.Route_clear&& activeRoadType != icons.Route_show)
+        if (activeRoadType != icons.Route_init && activeRoadType != icons.Route_clear && activeRoadType != icons.Route_show) {
+          snapLocationToRoad();
           updatePolylines();
+        }
       lastPos = pos;
     }
 }
@@ -134,7 +224,7 @@ function draw() {
 function snapLocationToRoad() {
 
   if (pos == undefined)
-    return null;
+    return
 
   $.get('https://roads.googleapis.com/v1/snapToRoads', {
     interpolate: true,
@@ -152,7 +242,7 @@ function processSnapResponse(data) {
     snappedPosition.lat = data.snappedPoints[i].location.latitude;
     snappedPosition.lng = data.snappedPoints[i].location.longitude;
   }
-  print(snappedPosition);
+  //print(snappedPosition);
 
   if (snappedPosition != null && snappedPosition != undefined &&
     snappedPosition.lat != null && snappedPosition.lat != undefined &&
@@ -201,10 +291,8 @@ function updatePoints() {
     if (type.polyline != null || type.icon == null) continue;
 
     if (type == activeRoadType) {
-      myLatlng = new google.maps.LatLng(pos.lat, pos.lng);
-
       const marker = new google.maps.Marker({
-        position: myLatlng,
+        position: new google.maps.LatLng(pos.lat, pos.lng),
         map: map,
         icon: type.icon,
       });
@@ -268,7 +356,7 @@ function createPositionMarker() {
 
 
 function drawLegend() {
-  const legend = document.getElementById("legend");
+  legend = document.getElementById("legend");
 
   for (const key in icons) {
     if (icons[key].icon == null)
@@ -297,10 +385,9 @@ function createRoadTypesButtons() {
 }
 function onTypeButtonPressed(type) {
   if (activeRoadType == type) {
-    print("Cleared activeRoadType")
     activeRoadType = null;
+    ActiveRoadTypeText.innerHTML = "";
   } else {
-    print("activeRoadType updated");
     activeRoadType = type;
     type.polyline = new google.maps.Polyline({
       strokeColor: type.color,
@@ -309,6 +396,8 @@ function onTypeButtonPressed(type) {
       editable: true,
     });
     type.polyline.setMap(map);
+    //print(activeRoadType.name)
+    ActiveRoadTypeText.innerHTML = "Comanda activa: " + activeRoadType.name;
   }
 }
 
