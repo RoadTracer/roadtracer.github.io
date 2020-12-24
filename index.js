@@ -218,7 +218,7 @@ function draw() {
             activeRoadType != icons.Route_show) {
           //snapLocationToRoad();
           updatePolylines();
-          lastPos = pos;
+          //lastPos = pos;
         }
       }
     }
@@ -255,10 +255,8 @@ function processSnapResponse(data) {
 }
 
 function mapUpdateNeeded() {
-  const minDistanceForUpdate = 0.0005;
-  //print (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
-    //pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
-
+  const minDistanceForUpdate = 0.00025;
+  
   return (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
           pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
 }
@@ -277,6 +275,7 @@ function updatePolylines() {
       //print(type.polyline.getPath());
     }
   }
+  lastPos = pos;
 }
 
 function updateRouteVisibility() {
