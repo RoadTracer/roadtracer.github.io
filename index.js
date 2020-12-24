@@ -7,8 +7,7 @@ drumuri din placi, umpluturi, etc - galben
 puncte: 
 */
 
-
-//window.onbeforeunload = function () {return "You will lose all your progress!";}
+window.onbeforeunload = function () {return "You will lose all your progress!";}
 
 const iconBase = "https://maps.google.com/mapfiles/kml/shapes/";
 const icons = {
@@ -42,13 +41,13 @@ const icons = {
   },
 
   Route_show: {
-    name: "Show route",
+    name: "Arata traseu",
   },
   Route_clear: {
-    name: "Hide route",
+    name: "Ascunde traseu",
   },
   Route_init: {
-    name: "Plan route",
+    name: "Planifica traseu",
   },
 };
 
@@ -86,10 +85,13 @@ function initMap(pos) {
 
   initPointField();
   initActiveRoadTypeText();
+
   createSnapToMapButton();
+  createHideEveryButton();
+  ActiveRoadTypeText.innerHTML = "Comanda activa: ";
 }
 
-function createSnapToMapButton(){
+function createSnapToMapButton() {
   const SnapButton = document.createElement("button");
   SnapButton.textContent = "Snap to road";
   SnapButton.classList.add("custom-map-control-button");
@@ -97,10 +99,31 @@ function createSnapToMapButton(){
   SnapButton.addEventListener("click", () => snapLocationToRoad())
 }
 
-function initActiveRoadTypeText(){
+function createHideEveryButton() {
+  const HideButton = document.createElement("button");
+  HideButton.textContent = "Arata/Ascunde comenzi";
+  HideButton.classList.add("custom-map-control-button");
+  map.controls[google.maps.ControlPosition.TOP_CENTER].push(HideButton);
+  HideButton.addEventListener("click", () => HideButtons())
+}
+
+function HideButtons(){
+
+  //print(map.controls[google.maps.ControlPosition.LEFT_BOTTOM]);
+  var Buttons = map.controls[google.maps.ControlPosition.LEFT_BOTTOM];
+  for(var i=0; i< Buttons.length; i++){
+    //print(Buttons.getAt(i));
+    if(Buttons.getAt(i).style.display == "none")
+    Buttons.getAt(i).style.display = "block"
+    else
+    Buttons.getAt(i).style.display = "none"
+  }
+}
+
+function initActiveRoadTypeText() {
 
   ActiveRoadTypeText = document.createElement("h2");
- map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(ActiveRoadTypeText);
+  map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(ActiveRoadTypeText);
 }
 
 function initPointField() {
@@ -117,6 +140,9 @@ function newPointAddedEvent(text) {
 
   const inText = text.target.value;
   //print(inText)
+  if(!inText || !inText.trim() )
+    return;
+
   //Add a marker
   new google.maps.Marker({
     position: new google.maps.LatLng(pos.lat, pos.lng),
@@ -222,10 +248,10 @@ function draw() {
 
   if (pos != undefined)
     if (mapUpdateNeeded()) {
-      if (activeRoadType != null){
-        if (activeRoadType != icons.Route_init && 
-            activeRoadType != icons.Route_clear && 
-            activeRoadType != icons.Route_show) {
+      if (activeRoadType != null) {
+        if (activeRoadType != icons.Route_init &&
+          activeRoadType != icons.Route_clear &&
+          activeRoadType != icons.Route_show) {
           //snapLocationToRoad();
           updatePolylines();
           //lastPos = pos;
@@ -236,16 +262,20 @@ function draw() {
 
 function snapLocationToRoad() {
 
-  if(activeRoadType == null)
-  return;
+  if (activeRoadType == null)
+    return;
 
-  var path = activeRoadType.polyline.getPath();
+  if (activeRoadType == icons.Route_init) {
+    var path = routePolyline.getPath();
+  } else {
+    var path = activeRoadType.polyline.getPath();
+  }
 
   //print(path.getAt(0).toUrlValue());
 
-    var newPathValues = [];
+  var newPathValues = [];
 
-  for(var i = 0; i < path.length; i++){
+  for (var i = 0; i < path.length; i++) {
     newPathValues.push(path.getAt(i).toUrlValue());
   }
 
@@ -254,49 +284,55 @@ function snapLocationToRoad() {
     key: "AIzaSyBlgYKld9QIQT9AALcT-Y2p2tOcQy-hROg",
     path: newPathValues.join('|') //pos.lat + ", " + pos.lng
   }, function (data) {
-   //print(data);
-   processSnapResponse(data);
+    //print(data);
+    processSnapResponse(data);
   })
 }
 
 function processSnapResponse(data) {
-  
+
   snappedCoordinates = [];
   placeIdArray = [];
+
   for (var i = 0; i < data.snappedPoints.length; i++) {
     var latlng = new google.maps.LatLng(
-        data.snappedPoints[i].location.latitude,
-        data.snappedPoints[i].location.longitude);
+      data.snappedPoints[i].location.latitude,
+      data.snappedPoints[i].location.longitude);
     snappedCoordinates.push(latlng);
     placeIdArray.push(data.snappedPoints[i].placeId);
   }
 
-  activeRoadType.polyline.setMap(null);
-  
-  activeRoadType.polyline = new google.maps.Polyline({
-    strokeColor: activeRoadType.color,
-    strokeOpacity: 0.7,
-    strokeWeight: 10,
-    editable: true,
-    path: snappedCoordinates,
-  });
-  activeRoadType.polyline.setMap(map);
-  
-  
-  //print(placeIdArray);
+  if (activeRoadType == icons.Route_init) {
+    routePolyline.setMap(null);
 
-  // if (snappedPosition != null && snappedPosition != undefined &&
-  //   snappedPosition.lat != null && snappedPosition.lat != undefined &&
-  //   snappedPosition.lng != null && snappedPosition.lng != undefined) {
-  //   myLatlng = new google.maps.LatLng(snappedPosition.lat, snappedPosition.lng);
-  // }
+    routePolyline = new google.maps.Polyline({
+      strokeColor: '#0000FF',
+      strokeOpacity: 0.3,
+      strokeWeight: 3,
+      //editable: true,
+      path: snappedCoordinates,
+    });
+    routePolyline.setMap(map);
+  }
+  else {
+    activeRoadType.polyline.setMap(null);
+
+    activeRoadType.polyline = new google.maps.Polyline({
+      strokeColor: activeRoadType.color,
+      strokeOpacity: 0.7,
+      strokeWeight: 10,
+      editable: true,
+      path: snappedCoordinates,
+    });
+    activeRoadType.polyline.setMap(map);
+  }
 }
 
 function mapUpdateNeeded() {
   const minDistanceForUpdate = 0.00025;
 
   return (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
-          pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
+    pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
 }
 
 function updatePolylines() {
@@ -307,8 +343,8 @@ function updatePolylines() {
       continue;
 
     if (type == activeRoadType) {
-        myLatlng = new google.maps.LatLng(pos.lat, pos.lng);
-        //print(pos.lat);
+      myLatlng = new google.maps.LatLng(pos.lat, pos.lng);
+      //print(pos.lat);
       type.polyline.getPath().push(myLatlng);
       //print(type.polyline.getPath());
     }
@@ -346,8 +382,8 @@ function updatePoints() {
 
 function initOwnPolyline() {
   routePolyline = new google.maps.Polyline({
-    strokeColor: "#000000",
-    strokeOpacity: .5,
+    strokeColor: "#0000FF",
+    strokeOpacity: .3,
     strokeWeight: 3,
     editable: true,
   });
@@ -429,7 +465,7 @@ function onTypeButtonPressed(type) {
     updatePolylines();
     //snapLocationToRoad();
     activeRoadType = null;
-    ActiveRoadTypeText.innerHTML = "Comanda activa:";
+    ActiveRoadTypeText.innerHTML = "Comanda activa: ";
   } else {
     activeRoadType = type;
     type.polyline = new google.maps.Polyline({
@@ -442,7 +478,7 @@ function onTypeButtonPressed(type) {
     updatePolylines();
     ActiveRoadTypeText.innerHTML = "Comanda activa: " + activeRoadType.name;
   }
-  
+
 }
 
 function createPanToLocationButton() {
