@@ -389,6 +389,7 @@ function createRoadTypesButtons() {
 }
 function onTypeButtonPressed(type) {
   if (activeRoadType == type) {
+    updatePolylines();
     activeRoadType = null;
     ActiveRoadTypeText.innerHTML = "";
   } else {
@@ -400,9 +401,10 @@ function onTypeButtonPressed(type) {
       editable: true,
     });
     type.polyline.setMap(map);
-    //print(activeRoadType.name)
+    updatePolylines();
     ActiveRoadTypeText.innerHTML = "Comanda activa: " + activeRoadType.name;
   }
+  
 }
 
 function createPanToLocationButton() {
