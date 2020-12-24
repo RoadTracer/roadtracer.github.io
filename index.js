@@ -106,7 +106,7 @@ function initPointField() {
 function newPointAddedEvent(text) {
 
   const inText = text.target.value;
-  print(inText)
+  //print(inText)
   //Add a marker
   new google.maps.Marker({
     position: new google.maps.LatLng(pos.lat, pos.lng),
@@ -256,8 +256,8 @@ function processSnapResponse(data) {
 
 function mapUpdateNeeded() {
   const minDistanceForUpdate = 0.0005;
-  print (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
-    pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
+  //print (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
+    //pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
 
   return (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
           pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
