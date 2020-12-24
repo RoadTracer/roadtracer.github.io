@@ -309,7 +309,7 @@ function processSnapResponse(data) {
       strokeColor: '#0000FF',
       strokeOpacity: 0.3,
       strokeWeight: 3,
-      //editable: true,
+      editable: true,
       path: snappedCoordinates,
     });
     routePolyline.setMap(map);
