@@ -86,7 +86,17 @@ function initMap(pos) {
 
   initPointField();
   initActiveRoadTypeText();
+  createSnapToMapButton();
 }
+
+function createSnapToMapButton(){
+  const SnapButton = document.createElement("button");
+  SnapButton.textContent = "Snap to road";
+  SnapButton.classList.add("custom-map-control-button");
+  map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(SnapButton);
+  SnapButton.addEventListener("click", () => snapLocationToRoad())
+}
+
 function initActiveRoadTypeText(){
 
   ActiveRoadTypeText = document.createElement("h2");
@@ -226,37 +236,65 @@ function draw() {
 
 function snapLocationToRoad() {
 
-  if (pos == undefined)
-    return
+  if(activeRoadType == null)
+  return;
+
+  var path = activeRoadType.polyline.getPath();
+
+  //print(path.getAt(0).toUrlValue());
+
+    var newPathValues = [];
+
+  for(var i = 0; i < path.length; i++){
+    newPathValues.push(path.getAt(i).toUrlValue());
+  }
 
   $.get('https://roads.googleapis.com/v1/snapToRoads', {
     interpolate: true,
     key: "AIzaSyBlgYKld9QIQT9AALcT-Y2p2tOcQy-hROg",
-    path: pos.lat + ", " + pos.lng
+    path: newPathValues.join('|') //pos.lat + ", " + pos.lng
   }, function (data) {
-    processSnapResponse(data);
+   //print(data);
+   processSnapResponse(data);
   })
 }
 
 function processSnapResponse(data) {
-  snappedPosition = pos;
-
+  
+  snappedCoordinates = [];
+  placeIdArray = [];
   for (var i = 0; i < data.snappedPoints.length; i++) {
-    snappedPosition.lat = data.snappedPoints[i].location.latitude;
-    snappedPosition.lng = data.snappedPoints[i].location.longitude;
+    var latlng = new google.maps.LatLng(
+        data.snappedPoints[i].location.latitude,
+        data.snappedPoints[i].location.longitude);
+    snappedCoordinates.push(latlng);
+    placeIdArray.push(data.snappedPoints[i].placeId);
   }
-  //print(snappedPosition);
 
-  if (snappedPosition != null && snappedPosition != undefined &&
-    snappedPosition.lat != null && snappedPosition.lat != undefined &&
-    snappedPosition.lng != null && snappedPosition.lng != undefined) {
-    myLatlng = new google.maps.LatLng(snappedPosition.lat, snappedPosition.lng);
-  }
+  activeRoadType.polyline.setMap(null);
+  
+  activeRoadType.polyline = new google.maps.Polyline({
+    strokeColor: activeRoadType.color,
+    strokeOpacity: 0.7,
+    strokeWeight: 10,
+    editable: true,
+    path: snappedCoordinates,
+  });
+  activeRoadType.polyline.setMap(map);
+  
+  
+  //print(placeIdArray);
+
+  // if (snappedPosition != null && snappedPosition != undefined &&
+  //   snappedPosition.lat != null && snappedPosition.lat != undefined &&
+  //   snappedPosition.lng != null && snappedPosition.lng != undefined) {
+  //   myLatlng = new google.maps.LatLng(snappedPosition.lat, snappedPosition.lng);
+  // }
 }
 
 function mapUpdateNeeded() {
   const minDistanceForUpdate = 0.00025;
-  
+
   return (pos.lat >= lastPos.lat + minDistanceForUpdate || pos.lat <= lastPos.lat - minDistanceForUpdate ||
           pos.lng >= lastPos.lng + minDistanceForUpdate || pos.lng <= lastPos.lng - minDistanceForUpdate)
 }
@@ -389,8 +427,9 @@ function createRoadTypesButtons() {
 function onTypeButtonPressed(type) {
   if (activeRoadType == type) {
     updatePolylines();
+    //snapLocationToRoad();
     activeRoadType = null;
-    ActiveRoadTypeText.innerHTML = "";
+    ActiveRoadTypeText.innerHTML = "Comanda activa:";
   } else {
     activeRoadType = type;
     type.polyline = new google.maps.Polyline({
