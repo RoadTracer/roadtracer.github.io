@@ -272,9 +272,9 @@ function updatePolylines() {
 
     if (type == activeRoadType) {
         myLatlng = new google.maps.LatLng(pos.lat, pos.lng);
-        print(pos.lat);
+        //print(pos.lat);
       type.polyline.getPath().push(myLatlng);
-      print(type.polyline.getPath());
+      //print(type.polyline.getPath());
     }
   }
 }
