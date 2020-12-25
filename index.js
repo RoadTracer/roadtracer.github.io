@@ -70,10 +70,13 @@ function initMap(pos) {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: pos.lat, lng: pos.lng },
     zoom: 16,
-    gestureHandling: "greedy",
+    gestureHandling: "cooperative",
+    rotateControl: true,
     streetViewControl: false,
     zoomControl: false,
+    mapTypeId: 'hybrid',
   });
+  map.setTilt(0);
   createPositionMarker();
   createPanToLocationButton();
 
@@ -307,8 +310,8 @@ function processSnapResponse(data) {
 
     routePolyline = new google.maps.Polyline({
       strokeColor: '#0000FF',
-      strokeOpacity: 0.3,
-      strokeWeight: 3,
+      strokeOpacity: .7,
+      strokeWeight: 10,
       editable: true,
       path: snappedCoordinates,
     });
@@ -319,7 +322,7 @@ function processSnapResponse(data) {
 
     activeRoadType.polyline = new google.maps.Polyline({
       strokeColor: activeRoadType.color,
-      strokeOpacity: 0.7,
+      strokeOpacity: .7,
       strokeWeight: 10,
       editable: true,
       path: snappedCoordinates,
@@ -338,6 +341,7 @@ function mapUpdateNeeded() {
 function updatePolylines() {
   for (const key in icons) {
     const type = icons[key];
+
 
     if (type.icon == null || type.polyline == null)
       continue;
@@ -383,8 +387,8 @@ function updatePoints() {
 function initOwnPolyline() {
   routePolyline = new google.maps.Polyline({
     strokeColor: "#0000FF",
-    strokeOpacity: .3,
-    strokeWeight: 3,
+    strokeOpacity: .7,
+    strokeWeight: 10,
     editable: true,
   });
   routePolyline.setMap(map);
