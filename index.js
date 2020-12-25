@@ -125,7 +125,10 @@ function HideButtons(){
 
 function initActiveRoadTypeText() {
 
-  ActiveRoadTypeText = document.createElement("h2");
+  ActiveRoadTypeText = document.createElement("h1");
+  ActiveRoadTypeText.style.color = "white";
+  ActiveRoadTypeText.style.background = "black"
+  //ActiveRoadTypeText.style.outlineColor = "black";
   map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(ActiveRoadTypeText);
 }
 
@@ -311,7 +314,7 @@ function processSnapResponse(data) {
     routePolyline = new google.maps.Polyline({
       strokeColor: '#0000FF',
       strokeOpacity: .7,
-      strokeWeight: 10,
+      strokeWeight: 13,
       editable: true,
       path: snappedCoordinates,
     });
@@ -323,7 +326,7 @@ function processSnapResponse(data) {
     activeRoadType.polyline = new google.maps.Polyline({
       strokeColor: activeRoadType.color,
       strokeOpacity: .7,
-      strokeWeight: 10,
+      strokeWeight: 13,
       editable: true,
       path: snappedCoordinates,
     });
@@ -388,7 +391,7 @@ function initOwnPolyline() {
   routePolyline = new google.maps.Polyline({
     strokeColor: "#0000FF",
     strokeOpacity: .7,
-    strokeWeight: 10,
+    strokeWeight: 13,
     editable: true,
   });
   routePolyline.setMap(map);
@@ -415,7 +418,7 @@ function createPolylines() {
       //path: type.path,
       strokeColor: type.color,
       strokeOpacity: 0.7,
-      strokeWeight: 10,
+      strokeWeight: 13,
       editable: true,
     });
     type.polyline.setMap(map);
@@ -470,17 +473,25 @@ function onTypeButtonPressed(type) {
     //snapLocationToRoad();
     activeRoadType = null;
     ActiveRoadTypeText.innerHTML = "Comanda activa: ";
+    ActiveRoadTypeText.style.background = "white";
+    ActiveRoadTypeText.style.color = "black";
   } else {
     activeRoadType = type;
     type.polyline = new google.maps.Polyline({
       strokeColor: type.color,
       strokeOpacity: 0.7,
-      strokeWeight: 10,
+      strokeWeight: 13,
       editable: true,
     });
     type.polyline.setMap(map);
     updatePolylines();
     ActiveRoadTypeText.innerHTML = "Comanda activa: " + activeRoadType.name;
+    if(activeRoadType.color == null) 
+       ActiveRoadTypeText.style.background = "white";
+       else
+    ActiveRoadTypeText.style.background = activeRoadType.color;
+    ActiveRoadTypeText.style.color = "black";
+    
   }
 
 }
@@ -497,4 +508,3 @@ function PanToLocation() {
   getLocation();
   map.setCenter(pos);
 }
-
