@@ -149,7 +149,6 @@ function clearField(){
 function newPointAddedEvent(text) {
 
   const inText = text.target.value;
-  //print(inText)
   if (!inText || !inText.trim())
     return;
 
