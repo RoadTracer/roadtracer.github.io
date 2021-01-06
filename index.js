@@ -7,7 +7,7 @@ drumuri din placi, umpluturi, etc - galben
 puncte: 
 */
 
-window.onbeforeunload = function () {return "You will lose all your progress!";}
+window.onbeforeunload = function () { return "You will lose all your progress!"; }
 
 const iconBase = "https://maps.google.com/mapfiles/kml/shapes/";
 const icons = {
@@ -110,16 +110,16 @@ function createHideEveryButton() {
   HideButton.addEventListener("click", () => HideButtons())
 }
 
-function HideButtons(){
+function HideButtons() {
 
   //print(map.controls[google.maps.ControlPosition.LEFT_BOTTOM]);
   var Buttons = map.controls[google.maps.ControlPosition.LEFT_BOTTOM];
-  for(var i=0; i< Buttons.length; i++){
+  for (var i = 0; i < Buttons.length; i++) {
     //print(Buttons.getAt(i));
-    if(Buttons.getAt(i).style.display == "none")
-    Buttons.getAt(i).style.display = "block"
+    if (Buttons.getAt(i).style.display == "none")
+      Buttons.getAt(i).style.display = "block"
     else
-    Buttons.getAt(i).style.display = "none"
+      Buttons.getAt(i).style.display = "none"
   }
 }
 
@@ -138,22 +138,34 @@ function initPointField() {
   inputField.classList.add("custom-map-control-button");
 
   inputField.addEventListener('change', newPointAddedEvent);
-
+  inputField.addEventListener('focus', clearField);
   map.controls[google.maps.ControlPosition.LEFT_BOTTOM].push(inputField);
+}
+
+function clearField(){
+  this.value = "";
 }
 
 function newPointAddedEvent(text) {
 
   const inText = text.target.value;
   //print(inText)
-  if(!inText || !inText.trim() )
+  if (!inText || !inText.trim())
     return;
 
-  //Add a marker
+    var r = /\d+/;
+    PointsIndex = inText.match(r);
+   
+    if(inText.match(r) == null){
+      alert("Nu a fost gasit numarul forajului")
+      return;
+    }
+
+    //Add a marker
   new google.maps.Marker({
     position: new google.maps.LatLng(pos.lat, pos.lng),
     map: map,
-    label: "F" + ++PointsIndex,
+    label: "F" + PointsIndex,
     draggable: true,
   });
 
@@ -166,7 +178,8 @@ function newPointAddedEvent(text) {
   img.style.float = "left";
   img.style.clear = "both";
 
-  const textNode = document.createTextNode("F" + PointsIndex + ": " + inText);
+  //const textNode = document.createTextNode("F" + PointsIndex + ": " + inText);
+  const textNode = document.createTextNode(inText);
   p.appendChild(textNode);
   p.style.maxWidth = "60ch"
   p.style.float = "left";
@@ -486,12 +499,12 @@ function onTypeButtonPressed(type) {
     type.polyline.setMap(map);
     updatePolylines();
     ActiveRoadTypeText.innerHTML = "Comanda activa: " + activeRoadType.name;
-    if(activeRoadType.color == null) 
-       ActiveRoadTypeText.style.background = "white";
-       else
-    ActiveRoadTypeText.style.background = activeRoadType.color;
+    if (activeRoadType.color == null)
+      ActiveRoadTypeText.style.background = "white";
+    else
+      ActiveRoadTypeText.style.background = activeRoadType.color;
     ActiveRoadTypeText.style.color = "black";
-    
+
   }
 
 }
