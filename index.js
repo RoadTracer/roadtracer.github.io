@@ -40,14 +40,15 @@ const icons = {
     polyline: "",
   },
 
-  Route_show: {
-    name: "Arata traseu",
-  },
-  Route_clear: {
-    name: "Ascunde traseu",
-  },
+  // Route_show: {
+  //   name: "Arata traseu",
+  // },
+  // Route_clear: {
+  //   name: "Ascunde traseu",
+  // },
   Route_init: {
     name: "Planifica traseu",
+    icon: "./Icons/Blue2.png", //iconBase + "info-i_maps.png",
   },
 };
 
@@ -358,7 +359,7 @@ function updatePolylines() {
     const type = icons[key];
 
 
-    if (type.icon == null || type.polyline == null)
+    if (type.icon == null || type.polyline == null || type == icons.Route_init)
       continue;
 
     if (type == activeRoadType) {
@@ -400,12 +401,25 @@ function updatePoints() {
 }
 
 function initOwnPolyline() {
+  const lineSymbol = {
+    path: "M 0,-1 0,1",
+    strokeOpacity: 1,
+    scale: 4,
+  };
+  
   routePolyline = new google.maps.Polyline({
     strokeColor: "#0000FF",
     strokeOpacity: .7,
     strokeWeight: 13,
     editable: true,
-  });
+    icons: [
+      {
+        icon: lineSymbol,
+        offset: "0",
+        repeat: "20px",
+      },
+    ], 
+   });
   routePolyline.setMap(map);
 
   map.addListener("click", addLatLng);
@@ -432,6 +446,7 @@ function createPolylines() {
       strokeOpacity: 0.7,
       strokeWeight: 13,
       editable: true,
+      geodesic: true,
     });
     type.polyline.setMap(map);
     type.path.pop();
@@ -458,7 +473,9 @@ function drawLegend() {
     if (icons[key].icon == null)
       continue;
     const type = icons[key];
-    const name = type.name;
+    var name = type.name;
+        if(type == icons.Route_init)
+    name = "Traseu Analizat"
     const icon = type.icon;
     const div = document.createElement("div");
     div.innerHTML = '<img src="' + icon + '"> ' + name;
@@ -487,7 +504,8 @@ function onTypeButtonPressed(type) {
     ActiveRoadTypeText.innerHTML = "Comanda activa: ";
     ActiveRoadTypeText.style.background = "white";
     ActiveRoadTypeText.style.color = "black";
-  } else {
+    initOwnPolyline(); //NEW
+    } else {
     activeRoadType = type;
     type.polyline = new google.maps.Polyline({
       strokeColor: type.color,
