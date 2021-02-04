@@ -78,7 +78,7 @@ function initMap(pos) {
     mapTypeId: 'hybrid',
     clickableIcons: false,
     rotateControl: true,
-    //rotateControlOptions: true,
+    rotateControlOptions: true,
   });
   map.setTilt(0);
   createPositionMarker();
