@@ -20,8 +20,8 @@ const icons = {
   },
   roadType2: {
     name: "Drum pietruit",
-    icon: "./Icons/Red.png", //iconBase + "library_maps.png",
-    color: "#FF0000",
+    icon: "./Icons/Orange.png", //iconBase + "library_maps.png",
+    color: "#FF8000",
     path: [{ lat: 0, lng: 0 }],
     polyline: "",
   },
@@ -48,7 +48,7 @@ const icons = {
   // },
   Route_init: {
     name: "Planifica traseu",
-    icon: "./Icons/Blue2.png", //iconBase + "info-i_maps.png",
+    icon: "./Icons/Red Dotted line.png", //iconBase + "info-i_maps.png",
   },
 };
 
@@ -411,9 +411,9 @@ function initOwnPolyline() {
   };
   
   routePolyline = new google.maps.Polyline({
-    strokeColor: "#0000FF",
-    strokeOpacity: .7,
-    strokeWeight: 13,
+    strokeColor: "#FF0000",
+    strokeOpacity: 1,
+    strokeWeight: 8,
     editable: true,
     icons: [
       {
