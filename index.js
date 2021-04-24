@@ -7,7 +7,7 @@ drumuri din placi, umpluturi, etc - galben
 puncte: 
 */
 
-window.onbeforeunload = function () { return "You will lose all your progress!"; }
+//window.onbeforeunload = function () { return "You will lose all your progress!"; }
 
 const iconBase = "https://maps.google.com/mapfiles/kml/shapes/";
 const icons = {
@@ -40,12 +40,12 @@ const icons = {
     polyline: "",
   },
 
-  // Route_show: {
-  //   name: "Arata traseu",
-  // },
-  // Route_clear: {
-  //   name: "Ascunde traseu",
-  // },
+  Route_show: {
+    name: "Arata traseu",
+  },
+  Route_clear: {
+    name: "Ascunde traseu",
+  },
   Route_init: {
     name: "Planifica traseu",
     icon: "./Icons/Red Dotted line.png", //iconBase + "info-i_maps.png",
@@ -53,6 +53,7 @@ const icons = {
 };
 
 let routePolyline;
+let _RoutePolylines = [];
 
 let map, infoWindow;
 let pos;
@@ -257,7 +258,6 @@ function getLocation(firstTime) {
 
 function setup() {
   getLocation(true);
-  //frameRate(1);
 }
 
 
@@ -377,11 +377,14 @@ function updatePolylines() {
 
 function updateRouteVisibility() {
   if (activeRoadType == icons.Route_clear)
-    if (routePolyline.map == map)
-      routePolyline.setMap(null);
+  _RoutePolylines.forEach(poly => {
+    poly.setMap(null);
+  });
+
   if (activeRoadType == icons.Route_show)
-    if (routePolyline.map == null)
-      routePolyline.setMap(map);
+  _RoutePolylines.forEach(poly => {
+    poly.setMap(map);
+  });
 }
 
 function updatePoints() {
@@ -409,9 +412,11 @@ function initOwnPolyline() {
     strokeOpacity: 1,
     scale: 4,
   };
-  
+
+  google.maps.event.clearInstanceListeners(map);
+
   routePolyline = new google.maps.Polyline({
-    strokeColor: "#FF0000",
+    strokeColor: "#0000FF",
     strokeOpacity: 1,
     strokeWeight: 8,
     editable: true,
@@ -424,6 +429,7 @@ function initOwnPolyline() {
     ], 
    });
   routePolyline.setMap(map);
+  _RoutePolylines.push(routePolyline);
 
   map.addListener("click", addLatLng);
 }
