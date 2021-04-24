@@ -7,7 +7,7 @@ drumuri din placi, umpluturi, etc - galben
 puncte: 
 */
 
-//window.onbeforeunload = function () { return "You will lose all your progress!"; }
+window.onbeforeunload = function () { return "You will lose all your progress!"; }
 
 const iconBase = "https://maps.google.com/mapfiles/kml/shapes/";
 const icons = {
